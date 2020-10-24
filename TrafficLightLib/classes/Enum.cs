@@ -9,11 +9,7 @@ namespace TrafficLightLib {
   public enum SignalColor {
     Red,
     Yellow,
-    Green
-  }
-
-  public enum SignalStatus {
-    Off,
-    On
+    Green,
+    Blue
   }
 }

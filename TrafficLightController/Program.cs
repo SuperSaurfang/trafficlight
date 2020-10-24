@@ -1,46 +1,58 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using TrafficLightLib;
 
-namespace TrafficLightController
+namespace TrafficLightControllerExec
 {
     class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
-            List<Signal> signals = new List<Signal>() {
-                new Signal(SignalColor.Red, SignalStatus.Off, 4),
-                new Signal(SignalColor.Yellow, SignalStatus.Off, 3),
-                new Signal(SignalColor.Green, SignalStatus.Off, 2),
-            };
+            TrafficLight trafficLight = new TrafficLight(4, 3, 2);
+            TrafficLight trafficLight1 = new TrafficLight(18, 15, 14);
+            TrafficLight trafficLight2 = new TrafficLight(22, 27, 17);
+            TrafficLight trafficLight3 = new TrafficLight(11, 9, 10);
 
             Console.WriteLine("Welcome to traffic light controller");
 
-            using(TrafficLight trafficLight = new TrafficLight(signals, TrafficPhase.RedPhase))
+            using(var trafficLightController = new TrafficLightController(trafficLight3, TrafficPhase.RedPhase))
             {
-                bool isRunning = true;
-
-                Console.CancelKeyPress += (object sender, ConsoleCancelEventArgs args) => 
+                trafficLightController.TrafficLightStatusMessageEvent += StatusMessageEvent;
+                Console.WriteLine("Initial Staus:");
+                PrintStatus(trafficLightController);
+                Console.WriteLine("Start task");
+                CancellationTokenSource tokenSource = new CancellationTokenSource();
+                var task = trafficLightController.StartTrafficLight(tokenSource.Token);
+                
+                Console.CancelKeyPress += (object sender, ConsoleCancelEventArgs args) =>
                 {
-                    Console.WriteLine("Last Round");
-                    trafficLight.Dispose();
+                    tokenSource.Cancel();
+                    task.Wait();
+                    
+                    Console.WriteLine($"Task completed: {task.IsCompleted}");
+                    Console.WriteLine("Bye");
                 };
 
-                while(isRunning) 
-                {
-                    Thread.Sleep(5000);
-                    trafficLight.SwitchPhase(TrafficPhase.RedYellowPhase);
-                    Thread.Sleep(2000);
-                    trafficLight.SwitchPhase(TrafficPhase.GreenPhase);
-                    Thread.Sleep(10000);
-                    trafficLight.SwitchPhase(TrafficPhase.YellowPhase);
-                    Thread.Sleep(2000);
-                    trafficLight.SwitchPhase(TrafficPhase.RedPhase);
-                }
-                
+                Console.WriteLine($"Task completed: {task.IsCompleted}");
+                var result = await task;
+                Console.WriteLine($"Result: {result}");
+                Console.ReadKey();
             }
-            Console.WriteLine("Bye!");
+            Console.ReadKey();
+        }
+
+        private static void StatusMessageEvent(object sender, TrafficLightStatusMessageArgs args)
+        {
+            Console.WriteLine($"Controller: {args.ControllerGuid} send message: {args.Message} and has phase: {args.TrafficPhase}");
+        }
+
+        private static void PrintStatus(TrafficLightController controller)
+        {
+            Console.WriteLine($"Redsignal: {controller.TrafficLight.RedSignal.Status}");
+            Console.WriteLine($"Yellowsignal: {controller.TrafficLight.YellowSignal.Status}");
+            Console.WriteLine($"Greensignal: {controller.TrafficLight.GreenSignal.Status}");
         }
     }
 }
