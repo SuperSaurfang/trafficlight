@@ -8,14 +8,12 @@ namespace TrafficLightLib
     /// <summary>
     /// Controller class for a TrafficLight
     /// </summary>
-    public sealed class TrafficLightController : ATrafficLightController
+    public sealed class TrafficLightController : TrafficLightControllerBase
     {
-        public delegate void TrafficLightStatusMessageHandler(object sender, TrafficLightStatusMessageArgs args);
-        public event TrafficLightStatusMessageHandler TrafficLightStatusMessageEvent;
-       
+
         private CancellationToken cancellationToken;
         private System.Timers.Timer timer;
-        
+
 
         /// <summary>
         /// Createas a new Trafficlight controller
@@ -25,7 +23,7 @@ namespace TrafficLightLib
         public TrafficLightController(TrafficLight trafficLight, TrafficPhase initialPhase)
             :base(trafficLight, initialPhase)
         {
-            
+
         }
 
         public Task<int> StartTrafficLight(CancellationToken cancellationToken)
@@ -37,10 +35,10 @@ namespace TrafficLightLib
             return Task.Run(() => {
                 TrafficLoop();
                 return 1;
-            });
+            }, cancellationToken);
         }
 
-        private void TrafficLoop() 
+        private void TrafficLoop()
         {
             timer = new System.Timers.Timer(5000);
             timer.Elapsed += (object send, System.Timers.ElapsedEventArgs args) =>
@@ -74,16 +72,16 @@ namespace TrafficLightLib
             timer.Start();
         }
 
-        private void SendStatusMessage(string message, TrafficPhase phase) 
+        private void SendStatusMessage(string message, TrafficPhase phase)
         {
-            TrafficLightStatusMessageEvent?.Invoke(this, new TrafficLightStatusMessageArgs(message, phase, ControllerGuid));
+            TrafficLightStatusMessageHandler?.Invoke(this, new TrafficLightStatusMessageArgs(message, phase, ControllerGuid));
         }
-        
-        protected override void Dispose(bool isDisposing) 
+
+        protected override void Dispose(bool isDisposing)
         {
-            if(!isDisposed) 
+            if(!isDisposed)
             {
-                if(isDisposing) 
+                if(isDisposing)
                 {
                     timer.Dispose();
                     timer = null;
