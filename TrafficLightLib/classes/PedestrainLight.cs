@@ -6,15 +6,24 @@ namespace TrafficLightLib
 {
     public class PedestrainLight
     {
-        public PedestrainLight(int greenPin, int redPin, int buttonPin)
+        public PedestrainLight(List<int> greenPins, List<int> redPins, int buttonPin)
         {
-            RedSignal = new Signal(SignalColor.Red, false, redPin);
-            GreenSignal = new Signal(SignalColor.Green, false, greenPin);
-            Button = new Button(buttonPin);
+          RedSignals = new List<Signal>();
+          foreach (var pin in redPins)
+          {
+              RedSignals.Add(new Signal(SignalColor.Red, false, pin));
+          }
+
+          GreenSignals = new List<Signal>();
+          foreach (var pin in greenPins)
+          {
+              GreenSignals.Add(new Signal(SignalColor.Green, false, pin));
+          }
+          Button = new Button(buttonPin);
         }
 
-        public Signal RedSignal { get; }
-        public Signal GreenSignal { get; }
+        public List<Signal> RedSignals {get;}
+        public List<Signal> GreenSignals {get;}
         public Button Button { get; }
     }
 }
