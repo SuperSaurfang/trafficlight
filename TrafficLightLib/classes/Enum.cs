@@ -12,4 +12,19 @@ namespace TrafficLightLib {
     Green,
     Blue
   }
+
+  public enum PedestrainState
+  {
+    Interruped,
+    Green,
+    Red,
+  }
+
+    public enum CardinalPoint 
+    {
+        North,
+        East,
+        South,
+        West
+    }
 }

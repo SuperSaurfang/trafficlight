@@ -29,11 +29,11 @@ namespace TrafficLightLib
       SwitchPhase(initialPhase);
     }
 
-    public virtual void SwitchPhase(TrafficPhase trafficPhase)
+    public virtual TrafficPhase SwitchPhase(TrafficPhase trafficPhase)
     {
       if (isDisposed)
       {
-        return;
+        return CurrentPhase;
       }
       CurrentPhase = trafficPhase;
       switch (trafficPhase)
@@ -56,6 +56,7 @@ namespace TrafficLightLib
           TrafficLight.GreenSignal.Status = SetPinValue(TrafficLight.GreenSignal.Pin, PinValue.High);
           break;
       }
+      return CurrentPhase;
     }
 
     protected virtual bool SetPinValue(int pin, PinValue value)
